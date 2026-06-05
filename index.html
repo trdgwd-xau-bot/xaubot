@@ -596,8 +596,8 @@ function wsSend(obj) {
 // ══════════════════════════════════════
 function handleMsg(msg) {
   if (msg.error) {
-    addLog("E", "Deriv: " + (msg.error.message || msg.error.code));
-    if (msg.error.code === "InvalidToken" || msg.error.code === "AuthorizationRequired") {
+    addLog("E", "Deriv ERR: code=" + msg.error.code + " msg=" + msg.error.message);
+    if (msg.error) {
       const banner = document.getElementById("conn-banner");
       banner.textContent = "✗ TOKEN NON VALIDO — vai nelle impostazioni";
       banner.className = "show err";
