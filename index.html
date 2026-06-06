@@ -397,7 +397,7 @@ header{padding:14px 16px 12px;background:rgba(8,12,26,.98);border-bottom:1px sol
 // ══════════════════════════════════════
 // CONFIG & STATE
 // ══════════════════════════════════════
-const SYMBOL      = "frxXAUUSD";
+const SYMBOL = "frxXAUUSD";
 const CONFIRM_NEED = 5;
 const REST_BASE   = "https://api.derivws.com";
 
@@ -611,14 +611,11 @@ function connectWebSocket(wsUrl) {
     document.getElementById("conn-banner").className = "";
     document.getElementById("conn-banner").style.display = "none";
 
-    // Subscribe to ticks
-    wsSend({ ticks: SYMBOL, subscribe: 1 });
+    // Get active symbols to find correct XAU/USD symbol
+    wsSend({ active_symbols: "brief", product_type: "basic" });
     // Get candle history
     wsSend({ ticks_history: SYMBOL, style: "candles", granularity: 60, count: 100, end: "latest", subscribe: 0 });
-    // Subscribe to balance
-    wsSend({ balance: 1, subscribe: 1 });
-    // Subscribe to open contracts
-    wsSend({ proposal_open_contract: 1, subscribe: 1 });
+    // balance and open contracts subscribed after active_symbols response
     // Keepalive
     setInterval(() => { if (ws && ws.readyState === WebSocket.OPEN) wsSend({ ping: 1 }); }, 30000);
   };
@@ -665,6 +662,19 @@ function wsSend(obj) {
 function handleMsg(msg) {
   if (msg.error) {
     addLog("E", "WS ERR: " + (msg.error.message || msg.error.code));
+    return;
+  }
+
+  if (msg.msg_type === "active_symbols") {
+    const syms = msg.active_symbols || [];
+    const xau = syms.find(s => (s.symbol||'').toLowerCase().includes('xau') || (s.display_name||'').toLowerCase().includes('gold'));
+    const sym = xau ? xau.symbol : SYMBOL;
+    addLog("S", "Simbolo: " + sym + (xau ? " (" + xau.display_name + ")" : " (default)"));
+    window.LIVE_SYMBOL = sym;
+    wsSend({ ticks: sym, subscribe: 1 });
+    wsSend({ ticks_history: sym, style: "candles", granularity: 60, count: 100, end: "latest", subscribe: 0 });
+    wsSend({ balance: 1, subscribe: 1 });
+    wsSend({ proposal_open_contract: 1, subscribe: 1 });
     return;
   }
 
