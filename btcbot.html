@@ -612,7 +612,7 @@ function connectWebSocket(wsUrl) {
     document.getElementById("conn-banner").style.display = "none";
 
     // Get active symbols to find correct BTC/USD symbol
-    wsSend({ active_symbols: "brief", product_type: "basic" });
+    wsSend({ active_symbols: "brief" });
     // Get candle history
     wsSend({ ticks_history: SYMBOL, style: "candles", granularity: 60, count: 100, end: "latest", subscribe: 0 });
     // balance and open contracts subscribed after active_symbols response
@@ -667,7 +667,7 @@ function handleMsg(msg) {
 
   if (msg.msg_type === "active_symbols") {
     const syms = msg.active_symbols || [];
-    const xau = syms.find(s => (s.symbol||'').toLowerCase().includes('btc') || (s.display_name||'').toLowerCase().includes('bitcoin'));
+    const xau = syms.find(s => (s.symbol||'').toLowerCase().includes('btc') || (s.display_name||'').toLowerCase().includes('bitcoin') || (s.display_name||'').toLowerCase().includes('btc'));
     const sym = xau ? xau.symbol : SYMBOL;
     addLog("S", "Simbolo: " + sym + (xau ? " (" + xau.display_name + ")" : " (default)"));
     window.LIVE_SYMBOL = sym;
