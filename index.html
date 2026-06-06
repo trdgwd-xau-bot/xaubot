@@ -612,7 +612,7 @@ function connectWebSocket(wsUrl) {
     document.getElementById("conn-banner").style.display = "none";
 
     // Get active symbols to find correct XAU/USD symbol
-    wsSend({ active_symbols: "brief", product_type: "basic" });
+    wsSend({ active_symbols: "brief" });
     // Get candle history
     wsSend({ ticks_history: SYMBOL, style: "candles", granularity: 60, count: 100, end: "latest", subscribe: 0 });
     // balance and open contracts subscribed after active_symbols response
